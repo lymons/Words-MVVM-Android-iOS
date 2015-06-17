@@ -18,8 +18,8 @@ public class WordListViewModel {
 
     private static final String TAG = WordListViewModel.class.getSimpleName();
 
-    final BehaviorSubject<Boolean> isLoading = BehaviorSubject.create(false);
-    final BehaviorSubject<List<WordViewModel>> words = BehaviorSubject.create(new LinkedList<>());
+    public final BehaviorSubject<Boolean> isLoading = BehaviorSubject.create(false);
+    public final BehaviorSubject<List<WordViewModel>> words = BehaviorSubject.create(new LinkedList<>());
 
     final WordService wordService;
 

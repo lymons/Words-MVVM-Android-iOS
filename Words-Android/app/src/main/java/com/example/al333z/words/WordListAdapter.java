@@ -1,46 +1,88 @@
 package com.example.al333z.words;
 
-import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.example.al333z.words.service.Word;
+import com.example.al333z.words.viewmodel.WordViewModel;
 
+import java.util.LinkedList;
 import java.util.List;
 
-public class WordListAdapter extends ArrayAdapter<WordListAdapter.WordListItem> {
+import rx.Observable;
 
-    private static final String TAG = WordListAdapter.class.getName();
+public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordViewHolder> {
 
-    public WordListAdapter(Context context, List<WordListItem> objects) {
-        super(context, R.layout.row_wordlist, objects);
+    private final String TAG = WordListAdapter.class.getSimpleName();
+
+    /**
+     * Update the items of the datasource
+     * NB: Only this method must be used to update the items of the adapter!
+     *
+     * @param items
+     */
+    public void updateItems(List<WordViewModel> items) {
+        mViewModels.removeAll(mViewModels);
+        mViewModels.addAll(items);
+        notifyDataSetChanged();
+    }
+
+    private List<WordViewModel> mViewModels = new LinkedList<>();
+
+    /**
+     * Constructor that returns a WordListAdapter, with the given list a predefined layout
+     *
+     * @param viewModelsObservable the list
+     */
+    public WordListAdapter(Observable<List<WordViewModel>> viewModelsObservable) {
+        super();
+
+        viewModelsObservable.subscribe(next -> {
+                    updateItems(next);
+                }
+        );
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        WordListItem item = getItem(position);
-        View rowView = inflater.inflate(R.layout.row_wordlist, parent, false);
-
-        TextView dayNumTextView = (TextView) rowView.findViewById(R.id.dayNumTextView);
-        TextView dayNameTextView = (TextView) rowView.findViewById(R.id.dayNameTextView);
-        TextView wordTextView = (TextView) rowView.findViewById(R.id.abTitleTextView);
-
-        wordTextView.setText(item.word.word);
-        return rowView;
+    public WordViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.word_list_item, viewGroup, false);
+        return new WordViewHolder(view);
     }
 
-    public static class WordListItem {
+    @Override
+    public int getItemCount() {
+        return mViewModels.size();
+    }
 
-        private Word word;
+    @Override
+    public void onBindViewHolder(WordViewHolder holder, int i) {
+        WordViewModel item = mViewModels.get(i);
+        holder.bindItem(item);
+    }
 
-        public WordListItem(Word word) {
-            this.word = word;
+    /**
+     * ViewHolder for Word list items
+     */
+    class WordViewHolder extends RecyclerView.ViewHolder {
+        public WordViewModel mItem;
+
+        TextView dayNumTextView;
+        TextView dayNameTextView;
+        TextView wordTextView;
+
+        public WordViewHolder(View itemView) {
+            super(itemView);
+
+            dayNumTextView = (TextView) itemView.findViewById(R.id.dayNumTextView);
+            dayNameTextView = (TextView) itemView.findViewById(R.id.dayNameTextView);
+            wordTextView = (TextView) itemView.findViewById(R.id.abTitleTextView);
         }
 
+        public void bindItem(WordViewModel item) {
+            mItem = item;
+            item.wordTitle.subscribe(next -> wordTextView.setText(next));
+        }
     }
 }
