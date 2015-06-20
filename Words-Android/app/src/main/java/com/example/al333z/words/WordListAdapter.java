@@ -10,9 +10,7 @@ import android.widget.TextView;
 
 import com.example.al333z.words.viewmodel.WordViewModel;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -100,15 +98,15 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
 
         public void bindItem(WordViewModel item) {
             mItem = item;
-            item.day.map(d -> d.toString()).subscribe(ViewActions.setText(dayTextView));
-            item.month.map(m -> m.toString()).subscribe(ViewActions.setText(monthTextView));
-            item.year.map(y -> y.toString()).subscribe(ViewActions.setText(yearTextView));
-            item.wordTitle.subscribe(ViewActions.setText(wordTextView));
+            item.day.observe().map(d -> d.toString()).subscribe(ViewActions.setText(dayTextView));
+            item.month.observe().map(m -> m.toString()).subscribe(ViewActions.setText(monthTextView));
+            item.year.observe().map(y -> y.toString()).subscribe(ViewActions.setText(yearTextView));
+            item.wordTitle.observe().subscribe(ViewActions.setText(wordTextView));
 
             viewRecycledBehavior = BehaviorSubject.create();
 
             imageView.setImageDrawable(null);
-            item.imageUrl
+            item.imageUrl.observe()
                     .takeUntil(viewRecycledBehavior)
                     .subscribeOn(Schedulers.io())
                     .map(url -> downloadImage(url))
@@ -120,12 +118,15 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
 
         private Drawable downloadImage(String imageUrl) {
             InputStream is = null;
+            Drawable d = null;
             try {
-                is = (InputStream) new URL(imageUrl).getContent();
-            } catch (IOException e) {
+//                URL url = new URL(imageUrl);
+//                is = (InputStream) url.getContent();
+//                d = Drawable.createFromStream(is, "image");
+//                is.close();
+            } catch (Exception e) {
                 e.printStackTrace();
             }
-            Drawable d = Drawable.createFromStream(is, "image");
             return d;
         }
     }
