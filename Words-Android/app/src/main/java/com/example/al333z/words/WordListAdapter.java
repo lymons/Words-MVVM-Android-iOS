@@ -20,6 +20,7 @@ import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.android.view.ViewActions;
 import rx.schedulers.Schedulers;
+import rx.subjects.BehaviorSubject;
 
 public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordViewHolder> {
 
@@ -67,6 +68,12 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
         holder.bindItem(item);
     }
 
+    @Override
+    public void onViewRecycled(WordViewHolder holder) {
+        holder.viewRecycledBehavior.onNext(null);
+        holder.viewRecycledBehavior = BehaviorSubject.create();
+    }
+
     /**
      * ViewHolder for the item
      */
@@ -78,6 +85,8 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
         TextView yearTextView;
         TextView wordTextView;
         ImageView imageView;
+
+        BehaviorSubject<Void> viewRecycledBehavior;
 
         public WordViewHolder(View itemView) {
             super(itemView);
@@ -96,20 +105,28 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
             item.year.map(y -> y.toString()).subscribe(ViewActions.setText(yearTextView));
             item.wordTitle.subscribe(ViewActions.setText(wordTextView));
 
+            viewRecycledBehavior = BehaviorSubject.create();
+
+            imageView.setImageDrawable(null);
             item.imageUrl
+                    .takeUntil(viewRecycledBehavior)
                     .subscribeOn(Schedulers.io())
-                    .map(url -> {
-                        InputStream is = null;
-                        try {
-                            is = (InputStream) new URL(url).getContent();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        Drawable d = Drawable.createFromStream(is, "image");
-                        return d;
-                    })
+                    .map(url -> downloadImage(url))
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(drawable -> imageView.setImageDrawable(drawable));
+                    .subscribe(drawable -> {
+                        imageView.setImageDrawable(drawable);
+                    });
+        }
+
+        private Drawable downloadImage(String imageUrl) {
+            InputStream is = null;
+            try {
+                is = (InputStream) new URL(imageUrl).getContent();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Drawable d = Drawable.createFromStream(is, "image");
+            return d;
         }
     }
 }
