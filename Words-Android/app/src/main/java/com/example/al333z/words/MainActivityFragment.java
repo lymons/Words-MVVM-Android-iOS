@@ -1,7 +1,6 @@
 package com.example.al333z.words;
 
 import android.app.Fragment;
-import android.app.ListFragment;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,9 +30,6 @@ public class MainActivityFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.recycleview_fragment, container, false);
         mRecyclerView = (RecyclerView) rootView.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        setHasOptionsMenu(true);
-
         return rootView;
     }
 
@@ -41,8 +37,7 @@ public class MainActivityFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if (mRecyclerView.getAdapter() != null)
-            return; // the adapter has already been set, doing nothing
+        if (mRecyclerView.getAdapter() != null) return; // the adapter has already been set
 
         WordService wordService = new WordService();
         WordListViewModel wordListViewModel = new WordListViewModel(wordService);

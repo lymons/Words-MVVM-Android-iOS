@@ -1,17 +1,25 @@
 package com.example.al333z.words;
 
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.al333z.words.viewmodel.WordViewModel;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.android.view.ViewActions;
+import rx.schedulers.Schedulers;
 
 public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordViewHolder> {
 
@@ -32,17 +40,14 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
     private List<WordViewModel> mViewModels = new LinkedList<>();
 
     /**
-     * Constructor that returns a WordListAdapter, with the given list a predefined layout
+     * Constructor that returns a WordListAdapter, with an observable containing a list of view models
      *
-     * @param viewModelsObservable the list
+     * @param viewModelsObservable an observable with the list of view models
      */
     public WordListAdapter(Observable<List<WordViewModel>> viewModelsObservable) {
         super();
 
-        viewModelsObservable.subscribe(next -> {
-                    updateItems(next);
-                }
-        );
+        viewModelsObservable.subscribe(next -> updateItems(next));
     }
 
     @Override
@@ -63,26 +68,48 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
     }
 
     /**
-     * ViewHolder for Word list items
+     * ViewHolder for the item
      */
     class WordViewHolder extends RecyclerView.ViewHolder {
         public WordViewModel mItem;
 
-        TextView dayNumTextView;
-        TextView dayNameTextView;
+        TextView dayTextView;
+        TextView monthTextView;
+        TextView yearTextView;
         TextView wordTextView;
+        ImageView imageView;
 
         public WordViewHolder(View itemView) {
             super(itemView);
 
-            dayNumTextView = (TextView) itemView.findViewById(R.id.dayNumTextView);
-            dayNameTextView = (TextView) itemView.findViewById(R.id.dayNameTextView);
-            wordTextView = (TextView) itemView.findViewById(R.id.abTitleTextView);
+            dayTextView = (TextView) itemView.findViewById(R.id.dayTextView);
+            monthTextView = (TextView) itemView.findViewById(R.id.monthTextView);
+            yearTextView = (TextView) itemView.findViewById(R.id.yearTextView);
+            wordTextView = (TextView) itemView.findViewById(R.id.titleTextView);
+            imageView = (ImageView) itemView.findViewById(R.id.imageView);
         }
 
         public void bindItem(WordViewModel item) {
             mItem = item;
-            item.wordTitle.subscribe(next -> wordTextView.setText(next));
+            item.day.map(d -> d.toString()).subscribe(ViewActions.setText(dayTextView));
+            item.month.map(m -> m.toString()).subscribe(ViewActions.setText(monthTextView));
+            item.year.map(y -> y.toString()).subscribe(ViewActions.setText(yearTextView));
+            item.wordTitle.subscribe(ViewActions.setText(wordTextView));
+
+            item.imageUrl
+                    .subscribeOn(Schedulers.io())
+                    .map(url -> {
+                        InputStream is = null;
+                        try {
+                            is = (InputStream) new URL(url).getContent();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        Drawable d = Drawable.createFromStream(is, "image");
+                        return d;
+                    })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(drawable -> imageView.setImageDrawable(drawable));
         }
     }
 }

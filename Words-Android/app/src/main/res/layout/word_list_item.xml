@@ -1,5 +1,4 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/background_material_light"
@@ -8,63 +7,70 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?android:attr/listDivider"/>
+        android:background="?android:attr/listDivider" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:layout_width="match_parent"
-                    android:layout_height="53dp">
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_margin="5dp" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center"
-            android:divider="?dividerVertical"
-            android:showDividers="middle">
+            android:gravity="center_vertical"
+            android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="70dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center" >
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <TextView
+                    android:id="@+id/dayTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="13dp"
-                    android:text="12"
-                    android:id="@+id/dayNumTextView"/>
+                    android:layout_marginRight="5dp"
+                    android:text="dayTextView"
+                    android:textSize="15dp" />
 
                 <TextView
+                    android:id="@+id/monthTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="9dp"
-                    android:text="LUN"
-                    android:id="@+id/dayNameTextView"/>
+                    android:layout_marginRight="5dp"
+                    android:text="monthTextView"
+                    android:textSize="15dp" />
+
+                <TextView
+                    android:id="@+id/yearTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5dp"
+                    android:text="yearTextView"
+                    android:textSize="15dp" />
 
             </LinearLayout>
 
             <TextView
+                android:id="@+id/titleTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="titleTextView"
                 android:textSize="15dp"
-                android:text="Stocazzo"
-                android:id="@+id/abTitleTextView"
-                android:layout_marginLeft="15dp"/>
+                android:textStyle="bold" />
 
         </LinearLayout>
 
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/imageView"
-            android:background="@color/material_blue_grey_950" />
-
-    </RelativeLayout>
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="?android:attr/listDivider"/>
+        android:background="?android:attr/listDivider" />
 
 </LinearLayout>
