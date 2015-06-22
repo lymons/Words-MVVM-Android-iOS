@@ -10,7 +10,9 @@ import android.widget.TextView;
 
 import com.example.al333z.words.viewmodel.WordViewModel;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,6 +21,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.android.view.ViewActions;
 import rx.schedulers.Schedulers;
 import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
 
 public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordViewHolder> {
 
@@ -37,6 +40,7 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
     }
 
     private List<WordViewModel> mViewModels = new LinkedList<>();
+    private PublishSubject<WordViewModel> mAdapterSelectedItemSubject;
 
     /**
      * Constructor that returns a WordListAdapter, with an observable containing a list of view models
@@ -47,6 +51,11 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
         super();
 
         viewModelsObservable.subscribe(next -> updateItems(next));
+        mAdapterSelectedItemSubject = PublishSubject.create();
+    }
+
+    public Observable<WordViewModel> getSelectedWordViewModelObservable() {
+        return mAdapterSelectedItemSubject.asObservable();
     }
 
     @Override
@@ -75,59 +84,72 @@ public class WordListAdapter extends RecyclerView.Adapter<WordListAdapter.WordVi
     /**
      * ViewHolder for the item
      */
-    class WordViewHolder extends RecyclerView.ViewHolder {
-        public WordViewModel mItem;
+    class WordViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private WordViewModel mItem;
 
-        TextView dayTextView;
-        TextView monthTextView;
-        TextView yearTextView;
-        TextView wordTextView;
-        ImageView imageView;
+        private TextView mDayTextView;
+        private TextView mMonthTextView;
+        private TextView mYearTextView;
+        private TextView mWordTextView;
+        private ImageView mImageView;
 
         BehaviorSubject<Void> viewRecycledBehavior;
 
         public WordViewHolder(View itemView) {
             super(itemView);
 
-            dayTextView = (TextView) itemView.findViewById(R.id.dayTextView);
-            monthTextView = (TextView) itemView.findViewById(R.id.monthTextView);
-            yearTextView = (TextView) itemView.findViewById(R.id.yearTextView);
-            wordTextView = (TextView) itemView.findViewById(R.id.titleTextView);
-            imageView = (ImageView) itemView.findViewById(R.id.imageView);
+            itemView.setOnClickListener(this);
+
+            mDayTextView = (TextView) itemView.findViewById(R.id.dayTextView);
+            mMonthTextView = (TextView) itemView.findViewById(R.id.monthTextView);
+            mYearTextView = (TextView) itemView.findViewById(R.id.yearTextView);
+            mWordTextView = (TextView) itemView.findViewById(R.id.titleTextView);
+            mImageView = (ImageView) itemView.findViewById(R.id.imageView);
         }
 
         public void bindItem(WordViewModel item) {
             mItem = item;
-            item.day.observe().map(d -> d.toString()).subscribe(ViewActions.setText(dayTextView));
-            item.month.observe().map(m -> m.toString()).subscribe(ViewActions.setText(monthTextView));
-            item.year.observe().map(y -> y.toString()).subscribe(ViewActions.setText(yearTextView));
-            item.wordTitle.observe().subscribe(ViewActions.setText(wordTextView));
+
+            mItem.day.observe().map(d -> d.toString()).subscribe(ViewActions.setText(mDayTextView));
+            mItem.month.observe().map(m -> m.toString()).subscribe(ViewActions.setText(mMonthTextView));
+            mItem.year.observe().map(y -> y.toString()).subscribe(ViewActions.setText(mYearTextView));
+            mItem.wordTitle.observe().subscribe(ViewActions.setText(mWordTextView));
 
             viewRecycledBehavior = BehaviorSubject.create();
 
-            imageView.setImageDrawable(null);
+            mImageView.setImageDrawable(null);
             item.imageUrl.observe()
-                    .takeUntil(viewRecycledBehavior)
+                    .takeUntil(viewRecycledBehavior.asObservable())
                     .subscribeOn(Schedulers.io())
                     .map(url -> downloadImage(url))
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(drawable -> {
-                        imageView.setImageDrawable(drawable);
-                    });
+                    .subscribe(drawable -> mImageView.setImageDrawable(drawable));
         }
 
         private Drawable downloadImage(String imageUrl) {
             InputStream is = null;
             Drawable d = null;
             try {
-//                URL url = new URL(imageUrl);
+                URL url = new URL(imageUrl);
+                // this crash on the emulator, leaving these lines commented for now..
 //                is = (InputStream) url.getContent();
 //                d = Drawable.createFromStream(is, "image");
-//                is.close();
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                    }
+                }
             }
             return d;
+        }
+
+        @Override
+        public void onClick(View v) {
+            mAdapterSelectedItemSubject.onNext(mItem);
         }
     }
 }

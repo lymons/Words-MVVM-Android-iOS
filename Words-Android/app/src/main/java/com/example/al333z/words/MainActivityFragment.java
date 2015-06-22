@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.al333z.words.service.WordService;
 import com.example.al333z.words.viewmodel.WordListViewModel;
@@ -20,8 +21,12 @@ import rx.android.view.ViewActions;
  */
 public class MainActivityFragment extends Fragment {
 
+    private static final String TAG = MainActivityFragment.class.getSimpleName();
+
     private RecyclerView mRecyclerView;
     private ProgressBar mProgressBar;
+    private WordListAdapter mAdapter;
+
 
     public MainActivityFragment() {
         setRetainInstance(true);
@@ -43,16 +48,22 @@ public class MainActivityFragment extends Fragment {
         super.onResume();
 
         if (mRecyclerView.getAdapter() != null) return; // the adapter has already been set
-
         final WordService wordService = new WordService();
         final WordListViewModel wordListViewModel = new WordListViewModel(wordService);
 
-        // init
+        // bind ui to current loading status
         wordListViewModel.isLoading.observe()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(ViewActions.setVisibility(mProgressBar));
 
-        // set the adapter
-        mRecyclerView.setAdapter(new WordListAdapter(wordListViewModel.words.observe()));
+        // bind the adapter view with the view model
+        mAdapter = new WordListAdapter(wordListViewModel.words.observe());
+        mRecyclerView.setAdapter(mAdapter);
+
+        // observe selection event and show another view with the selected content
+        mAdapter.getSelectedWordViewModelObservable()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(selectedWordViewModel ->
+                        Toast.makeText(getActivity(), selectedWordViewModel.wordTitle.value(), Toast.LENGTH_SHORT).show());
     }
 }

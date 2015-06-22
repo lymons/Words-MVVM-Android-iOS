@@ -24,7 +24,7 @@ class WordsViewController: UIViewController {
         bindingHelper = TableViewBindingHelper(tableView: wordsTable,
             sourceSignal: viewModel.words.producer, nibName: "WordCell")
 
-        // observe didSelect event and show another view
+        // observe selection event and show another view with the selected content
         bindingHelper.getTableViewSelectedItemSignal()
             |> observeOn(UIScheduler())
             |> observe(next: { self.showWordDetail($0) })
