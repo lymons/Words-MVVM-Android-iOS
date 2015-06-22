@@ -20,11 +20,13 @@ class WordCellView: UITableViewCell, ReactiveView {
         let triggerSignal = self.rac_prepareForReuseSignal.asSignal() |> toVoidSignal
 
         if let wordViewModel = viewModel as? WordViewModel {
+            // bind the text of the labels to its value
             yearLabel.rac_text <~ wordViewModel.year.producer |> map { "\($0)" }
             monthLabel.rac_text <~ wordViewModel.month.producer |> map { "\($0)" }
             dayLabel.rac_text <~ wordViewModel.day.producer |> map { "\($0)" }
             wordLabel.rac_text <~ wordViewModel.wordTitle.producer
 
+            // download the image
             picImageSignalProducer(wordViewModel.imageUrl.value)
                 |> startOn(scheduler)
                 |> takeUntil(triggerSignal)
