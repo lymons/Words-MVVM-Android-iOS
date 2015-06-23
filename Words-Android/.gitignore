@@ -26,7 +26,8 @@ proguard/
 # Log Files
 *.log
 
-.gradle
 /.idea/workspace.xml
 /.idea/libraries
 .DS_Store
+
+/local.properties
