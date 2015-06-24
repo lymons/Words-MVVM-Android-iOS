@@ -21,12 +21,9 @@ public class WordListViewModel {
     public final MutableProperty<Boolean> isLoading = MutableProperty.create(false);
     public final MutableProperty<List<WordViewModel>> words = MutableProperty.create(new LinkedList<>());
 
-    final WordService wordService;
-
     public WordListViewModel(WordService wordService) {
-        this.wordService = wordService;
 
-        this.wordService.getWords(1, 2025)
+        wordService.getWords(1, 2025)
                 .doOnSubscribe(() -> this.isLoading.put(true))
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap(wordResponse -> Observable.from(wordResponse.words))

@@ -64,13 +64,11 @@ class TableViewBindingHelper<T: AnyObject> : NSObject, UITableViewDelegate {
 class DataSource: NSObject, UITableViewDataSource
 {
     private let templateCell: UITableViewCell
-    private let selectionAction: ReactiveCocoa.Action<AnyObject, AnyObject, NoError>?
     var data: [AnyObject]
 
-    init(data: [AnyObject], templateCell: UITableViewCell, selectionAction: ReactiveCocoa.Action<AnyObject, AnyObject, NoError>? = nil) {
+    init(data: [AnyObject], templateCell: UITableViewCell) {
         self.data = data
         self.templateCell = templateCell
-        self.selectionAction = selectionAction
     }
 
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

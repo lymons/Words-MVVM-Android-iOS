@@ -9,5 +9,4 @@ public class WordResponse {
     WordResponse(Word[] words) {
         this.words = words;
     }
-
 }

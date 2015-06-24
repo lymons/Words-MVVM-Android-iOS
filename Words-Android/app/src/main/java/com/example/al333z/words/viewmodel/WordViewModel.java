@@ -14,10 +14,7 @@ public class WordViewModel {
     final public ConstantProperty<Integer> year;
     final public ConstantProperty<String> imageUrl;
 
-    private final Word word;
-
     public WordViewModel(Word word) {
-        this.word = word;
         this.wordTitle = ConstantProperty.create(word.word);
         this.day = ConstantProperty.create(word.day);
         this.month = ConstantProperty.create(word.month);
