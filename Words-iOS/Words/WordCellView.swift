@@ -47,5 +47,4 @@ class WordCellView: UITableViewCell, ReactiveView {
             sendCompleted(sink)
         }
     }
-
 }

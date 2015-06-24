@@ -3,8 +3,7 @@ import ReactiveCocoa
 
 class WordsViewController: UIViewController {
 
-    @IBOutlet weak var searchTextField: UITextField!
-    @IBOutlet weak var searchAcitivyIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var loadActivityIndicator: UIActivityIndicatorView!
 
     @IBOutlet weak var wordsTable: UITableView!
 
@@ -17,7 +16,7 @@ class WordsViewController: UIViewController {
         let viewModel = WordListViewModel(wordService: wordService)
 
         // bind ui to current loading status
-        searchAcitivyIndicator.rac_hidden <~ viewModel.isLoading.producer |> map { !$0 }
+        loadActivityIndicator.rac_hidden <~ viewModel.isLoading.producer |> map { !$0 }
         wordsTable.rac_alpha <~ viewModel.isLoading.producer |> map { $0 ? CGFloat(0.5) : CGFloat(1.0) }
 
         // bind the table view with the view model
@@ -36,4 +35,3 @@ class WordsViewController: UIViewController {
         alert.show()
     }
 }
-

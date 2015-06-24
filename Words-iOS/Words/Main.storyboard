@@ -37,7 +37,7 @@
                     </view>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
                     <connections>
-                        <outlet property="searchAcitivyIndicator" destination="fOA-oY-m6K" id="jlz-3A-GF0"/>
+                        <outlet property="loadActivityIndicator" destination="fOA-oY-m6K" id="eV3-Qc-mz7"/>
                         <outlet property="wordsTable" destination="f7r-lk-7sQ" id="k2f-c3-HeJ"/>
                     </connections>
                 </viewController>
